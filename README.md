@@ -39,7 +39,6 @@ docker compose up -d
 3. Upload some .mp3 or .wav files.
 
 ### 3. Start the Quarkus Orchestrator
-code
 ```bash
 ./mvnw clean compile quarkus:dev
 ```
