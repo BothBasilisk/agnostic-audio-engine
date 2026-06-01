@@ -13,10 +13,10 @@ import org.basilisk.repository.TrackRepository;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.hibernate.annotations.Parameter;
 
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -43,33 +43,28 @@ public class TrackResource {
     @Operation(summary = "Analyze and save a record", 
     description = "Sends the URL (MinIO or S3) of an audio file to the Python worker for "
     		+ "the vectorial extraction and saves the result in Postgres.")
-    public Response createTrack(TrackRequestDTO requestDTO) {
-		// --- 1. Check if I have the audio URL ---
-		if(requestDTO.getSongPath() == null || requestDTO.getSongPath().isEmpty()) {
-			return Response.status(400).entity("Missing song path").build();
-		}
-		
+    public Response createTrack(@Valid TrackRequestDTO requestDTO) {
 		System.out.println("Calling AI to analyze audio");
 		
-		// --- 2. REQUEST DTO -> ENTITY mapping
+		// --- 1. REQUEST DTO -> ENTITY mapping
 		Track track = new Track();
 		track.setArtist(requestDTO.getArtist());
         track.setTitle(requestDTO.getTitle());
         track.setSongPath(requestDTO.getSongPath());
 		
-		// --- 3. Calling python script ---
+		// --- 2. Calling python script ---
 		AudioRequest aiRequest = new AudioRequest(track.getSongPath());
 		AudioResponse aiResponse = dspClient.encodeAudio(aiRequest);
 		
-		// --- 4. Storing song embedding ---
+		// --- 3. Storing song embedding ---
 		track.setAudioEmbedding(aiResponse.getEmbedding());
 		
 		System.out.println("Song DNA extracted");
 		
-		// --- 5. Saving the song ---
+		// --- 4. Saving the song ---
 		trackRepository.persist(track);
 		
-		// --- 6. ENTITY -> RESPONSE DTO mapping
+		// --- 5. ENTITY -> RESPONSE DTO mapping
 		TrackResponseDTO responseDTO = new TrackResponseDTO(
 	            track.getId(), track.getArtist(), track.getTitle(), track.getSongPath()
 	        );
