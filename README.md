@@ -15,6 +15,7 @@ Traditional music cataloging relies on manual textual tags (Genre, BPM, Mood). *
 * 🎧 **Acoustic Semantic Search:** Find "tracks that sound exactly like this one" using Cosine Similarity.
 * 🚀 **High Performance:** Java/Quarkus reactive orchestrator paired with a stateless Python FastAPI DSP engine.
 * 📦 **Batteries Included:** Comes with local S3 storage (MinIO) and Vector DB ready to go.
+* 🛡️ **Enterprise-Ready:** Built-in API pagination, DTO mapping, global exception handling, and input validation.
 
 ## 🏗️ Architecture
 1. **Core Orchestrator:** Quarkus (Java) handles routing, transactions, and REST APIs.
@@ -48,5 +49,14 @@ Open the interactive Swagger UI and test the APIs directly from your browser:
 👉 http://localhost:8080/q/swagger-ui
 1. Use POST /api/tracks to ingest a track (Use the MinIO url: http://minio:9000/audio-catalog/your-file.mp3).
 2. Use GET /api/tracks/{id}/similar to let the AI find the closest acoustic matches!
+
+## 🛠️ Development & Testing
+This project embraces Test-Driven robustness. You don't need to spin up the Python worker or mock databases manually to run tests. 
+The test suite automatically provisions a `pgvector` container (via **Quarkus DevServices / Testcontainers**) and mocks the Python AI responses using **WireMock**.
+
+Just run:
+```bash
+./mvnw clean verify
+```
 
 Built with ❤️ for the Audio Engineering and Data Science community.
